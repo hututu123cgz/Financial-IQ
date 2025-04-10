@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财商测评后台管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #0b5ed7;
+            --bg-color: #f8f9fa;
+            --card-color: #fff;
+            --text-color: #212529;
+            --light-text: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        th {
+            background-color: rgba(13, 110, 253, 0.1);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .summary-card {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .summary-item {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background-color: rgba(13, 110, 253, 0.05);
+            border-radius: var(--border-radius);
+            margin: 0 10px;
+        }
+        
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .summary-label {
+            font-size: 14px;
+            color: var(--light-text);
+        }
+        
+        .question-details {
+            margin-top: 30px;
+        }
+        
+        .question-row {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .question-text {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .question-score {
+            width: 80px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-controls select, .filter-controls input {
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>财商测评后台管理系统</h1>
+        
+        <div class="summary-card">
+            <div class="summary-item">
+                <div class="summary-value" id="totalTests">0</div>
+                <div class="summary-label">总测试人数</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="avgScore">0</div>
+                <div class="summary-label">平均分数</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="highScore">0</div>
+                <div class="summary-label">最高分</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="lowScore">0</div>
+                <div class="summary-label">最低分</div>
+            </div>
+        </div>
+        
+        <div class="filter-controls">
+            <select id="dateFilter">
+                <option value="all">所有日期</option>
+                <option value="today">今天</option>
+                <option value="week">本周</option>
+                <option value="month">本月</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="搜索...">
+            <button class="btn" onclick="loadResults()">筛选</button>
+            <button class="btn" onclick="exportToExcel()">导出Excel</button>
+        </div>
+        
+        <div class="card">
+            <h2>测试记录</h2>
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>总分</th>
+                        <th>财商等级</th>
+                        <th>测试时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+        </div>
+        
+        <div class="card" id="detailCard" style="display: none;">
+            <h2>详细答题情况</h2>
+            <div id="userInfo"></div>
+            <div class="question-details" id="questionDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据 - 实际应用中应从后端API获取
+        const mockResults = [
+            {
+                id: "1",
+                score: 32,
+                questionScores: {
+                    q1: 4, q2: 3, q3: 4, q4: 3, q5: 4,
+                    q6: 3, q7: 4, q8: 3, q9: 2, q10: 2
+                },
+                timestamp: "2023-06-15T10:30:00Z"
+            },
+            {
+                id: "2",
+                score: 25,
+                questionScores: {
+                    q1: 3, q2: 2, q3: 3, q4: 2, q5: 3,
+                    q6: 2, q7: 3, q8: 2, q9: 3, q10: 2
+                },
+                timestamp: "2023-06-16T14:45:00Z"
+            },
+            {
+                id: "3",
+                score: 18,
+                questionScores: {
+                    q1: 2, q2: 1, q3: 2, q4: 1, q5: 2,
+                    q6: 1, q7: 2, q8: 1, q9: 3, q10: 3
+                },
+                timestamp: "2023-06-17T09:15:00Z"
+            }
+        ];
+
+        // 题目描述映射
+        const questionTexts = {
+            q1: "1. 发下一笔奖金，你会如何犒劳自己?",
+            q2: "2. 你会经常借钱给别人吗?",
+            q3: "3. 你赞成用分期付款的方式来买车吗?",
+            q4: "4. 你常去商店买换季、打折的物品吗?",
+            q5: "5. 你看到想要的东西一定要得到吗?",
+            q6: "6. 你会在公共场合捡起五毛钱吗?",
+            q7: "7. 你经常会买福利彩票或体育彩票吗?",
+            q8: "8. 到退休年龄时，你还会不会想继续工作或赚钱?",
+            q9: "9. 如果可以得到一笔一千万元的巨款，你会如何领取?",
+            q10: "10. 你想要住的地方是?"
+        };
+
+        // 加载结果数据
+        function loadResults() {
+            // 实际应用中应从API获取数据
+            // fetch('/api/results')
+            //     .then(response => response.json())
+            //     .then(data => displayResults(data))
+            //     .catch(error => console.error('Error:', error));
+            
+            // 使用模拟数据演示
+            displayResults(mockResults);
+        }
+
+        // 显示结果数据
+        function displayResults(results) {
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+            
+            // 计算统计数据
+            let totalScore = 0;
+            let highScore = 0;
+            let lowScore = 100;
+            
+            results.forEach(result => {
+                totalScore += result.score;
+                if (result.score > highScore) highScore = result.score;
+                if (result.score < lowScore) lowScore = result.score;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${result.id}</td>
+                    <td>${result.score}</td>
+                    <td>${getLevel(result.score)}</td>
+                    <td>${new Date(result.timestamp).toLocaleString()}</td>
+                    <td><button class="btn" onclick="showDetails('${result.id}')">查看详情</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // 更新统计信息
+            document.getElementById('totalTests').textContent = results.length;
+            document.getElementById('avgScore').textContent = results.length > 0 ? (totalScore / results.length).toFixed(1) : 0;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('lowScore').textContent = results.length > 0 ? lowScore : 0;
+        }
+
+        // 显示详细答题情况
+        function showDetails(resultId) {
+            // 在实际应用中应从API获取特定结果
+            // fetch(`/api/results/${resultId}`)
+            //     .then(response => response.json())
+            //     .then(data => displayDetails(data))
+            //     .catch(error => console.error('Error:', error));
+            
+            // 使用模拟数据演示
+            const result = mockResults.find(r => r.id === resultId);
+            if (result) {
+                displayDetails(result);
+            }
+        }
+
+        // 显示详细答题情况
+        function displayDetails(result) {
+            document.getElementById('detailCard').style.display = 'block';
+            
+            // 显示用户基本信息
+            document.getElementById('userInfo').innerHTML = `
+                <p><strong>测试ID:</strong> ${result.id}</p>
+                <p><strong>总分:</strong> ${result.score} (${getLevel(result.score)})</p>
+                <p><strong>测试时间:</strong> ${new Date(result.timestamp).toLocaleString()}</p>
+            `;
+            
+            // 显示每题得分
+            const detailsContainer = document.getElementById('questionDetails');
+            detailsContainer.innerHTML = '';
+            
+            for (let i = 1; i <= 10; i++) {
+                const qKey = `q${i}`;
+                const qScore = result.questionScores[qKey] || 0;
+                
+                const detailRow = document.createElement('div');
+                detailRow.className = 'question-row';
+                detailRow.innerHTML = `
+                    <div class="question-text">${questionTexts[qKey]}</div>
+                    <div class="question-score">得分: ${qScore}</div>
+                `;
+                
+                detailsContainer.appendChild(detailRow);
+            }
+            
+            // 滚动到详情区域
+            document.getElementById('detailCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 根据分数获取等级
+        function getLevel(score) {
+            if (score >= 30) return '95% (高财商)';
+            if (score >= 25) return '65% (中高财商)';
+            if (score >= 20) return '40% (中等财商)';
+            return '20% (基础财商)';
+        }
+
+        // 导出到Excel
+        function exportToExcel() {
+            // 实际应用中应调用后端API生成Excel
+            alert('导出功能需要连接后端API实现');
+        }
+
+        // 页面加载时获取数据
+        window.onload = loadResults;
+    </script>
+</body>
+</html>
