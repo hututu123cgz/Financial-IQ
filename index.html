@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财商测评｜你的财富潜力有多大？</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #0b5ed7;
+            --bg-start: #004B64;
+            --bg-end: #B7E8EA;
+            --card-color: rgba(255, 255, 255, 0.9);
+            --text-color: #212529;
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 头部样式 */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        /* 进度条 */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 3px;
+        }
+        
+        /* 问题卡片 */
+        .question-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .question-card {
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            display: none;
+        }
+        
+        .question-card.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .question-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .question-number {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        
+        /* 选项样式 */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+        
+        .option:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .option.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        
+        .option input[type="radio"] {
+            display: none;
+        }
+        
+        .option .radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #adb5bd;
+            border-radius: 50%;
+            margin-right: 12px;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        
+        .option.selected .radio {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+        }
+        
+        .option.selected .radio::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+        }
+        
+        .option .label {
+            flex-grow: 1;
+            font-size: 15px;
+        }
+        
+        .option .label .letter {
+            font-weight: bold;
+            margin-right: 5px;
+            color: var(--primary-color);
+        }
+        
+        /* 导航按钮 */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .next-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .next-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .next-btn:disabled {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .prev-btn {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            color: var(--text-color);
+        }
+        
+        .prev-btn:hover {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        /* 结果页面 */
+        .result-container {
+            display: none;
+            background-color: var(--card-color);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .result-score {
+            font-size: 72px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--primary-color);
+            position: relative;
+        }
+        
+        .result-score::after {
+            content: "分";
+            font-size: 64px;
+            position: absolute;
+            right: 140px;
+            bottom: 10px;
+        }
+        
+        .result-level {
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 10px;
+            background-color: rgba(13, 110, 253, 0.1);
+            border-radius: var(--border-radius);
+        }
+        
+        .result-desc {
+            padding: 15px;
+            background-color: rgba(13, 110, 253, 0.05);
+            border-radius: var(--border-radius);
+            margin: 25px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .result-desc p {
+            margin-bottom: 10px;
+        }
+        
+        .result-desc p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .restart-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+            
+            .option .label {
+                font-size: 14px;
+            }
+            
+            .result-score {
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 进度条 -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <!-- 问卷头部 -->
+        <div class="header">
+            <h1>财商测评｜你的财富潜力有多大？</h1>
+            <div class="subtitle">10道题测出你的财商水平，精准分析你的财富潜力</div>
+        </div>
+        
+        <!-- 问卷表单容器 -->
+        <div class="question-container" id="questionContainer">
+            <!-- 问题1 -->
+            <div class="question-card active" id="question1">
+                <div class="question-header">
+                    <div class="question-number">1</div>
+                    <div class="question-text">发下一笔奖金，你会如何犒劳自己?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q1" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 请自己大吃一顿</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 买前段时间想买的贵重物品</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 还是存着好了</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 除了犒劳自己，也给父母或是伴侣买些东西</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn next-btn" onclick="nextQuestion(1)">下一题</button>
+                </div>
+            </div>
+            
+            <!-- 问题2 -->
+            <div class="question-card" id="question2">
+                <div class="question-header">
+                    <div class="question-number">2</div>
+                    <div class="question-text">你会经常借钱给别人吗?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q2" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 看借给什么人，做什么用，然后再决定要不要借</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 只要自己有钱，这方面还是很大方的</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 除非是拒绝不了，不然很少会借</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 不好意思拒绝，所以别人问，基本都会借</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn prev-btn" onclick="prevQuestion(2)">上一题</button>
+                    <button class="nav-btn next-btn" onclick="nextQuestion(2)">下一题</button>
+                </div>
+            </div>
+            
+            <!-- 问题3 -->
+            <div class="question-card" id="question3">
+                <div class="question-header">
+                    <div class="question-number">3</div>
+                    <div class="question-text">你赞成用分期付款的方式来买车吗?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q3" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 会先考虑自己承担的力度，再决定买什么样的车，分多少期</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 赞成，只要是自己喜欢的，就会这么做</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 压力太大了，比较起来我还是愿意先存钱后买车</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 尽量先找父母赞助，然后再考虑分期的问题</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn prev-btn" onclick="prevQuestion(3)">上一题</button>
+                    <button class="nav-btn next-btn" onclick="nextQuestion(3)">下一题</button>
+                </div>
+            </div>
+            
+            <!-- 问题4 -->
+            <div class="question-card" id="question4">
+                <div class="question-header">
+                    <div class="question-number">4</div>
+                    <div class="question-text">你常去商店买换季、打折的物品吗?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q4" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 要看什么东西，若日常用品就会（如被子），有潮流趋势的衣物等就不会</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 不常去，我都是想买什么就买什么，不会考虑那么多</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 虽然我很喜欢买换季打折的物品，但也会根据自己的经济实力来</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 是的，我常常会买很多换季打折的物品，省钱</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn prev-btn" onclick="prevQuestion(4)">上一题</button>
+                    <button class="nav-btn next-btn" onclick="nextQuestion(4)">下一题</button>
+                </div>
+            </div>
+            
+            <!-- 问题5 -->
+            <div class="question-card" id="question5">
+                <div class="question-header">
+                    <div class="question-number">5</div>
+                    <div class="question-text">你看到想要的东西一定要得到吗?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q5" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 肯定会去努力，实在得不到，再用其他东西代替</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 是的，想尽办法都要得到</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 心里肯定迫切想要得到，并会去试试，但实在要不到也就算了</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 得之我幸，不得我命，不太强求</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn prev-btn" onclick="prevQuestion(5)">上一题</button>
+                    <button class="nav-btn next-btn" onclick="nextQuestion(5)">下一题</button>
+                </div>
+            </div>
+            
+            <!-- 问题6 -->
+            <div class="question-card" id="question6">
+                <div class="question-header">
+                    <div class="question-number">6</div>
+                    <div class="question-text">你会在公共场合捡起五毛钱吗?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q6" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 是自己掉的就捡，别人掉的懒得捡</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 五毛钱有什么好捡的</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 若无人望向这边就捡</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 捡起来，然后问周围的人是谁掉的</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn prev-btn" onclick="prevQuestion(6)">上一题</button>
+                    <button class="nav-btn next-btn" onclick="nextQuestion(6)">下一题</button>
+                </div>
+            </div>
+            
+            <!-- 问题7 -->
+            <div class="question-card" id="question7">
+                <div class="question-header">
+                    <div class="question-number">7</div>
+                    <div class="question-text">你经常会买福利彩票或体育彩票吗?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q7" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 宁愿买刮刮乐，投注彩票太不靠</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 要么不买，一买就会买得比较多</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 偶尔买来玩玩，中大奖还是不会去奢望</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 会常常去买，但每次也只是买几块钱，当给自己一个发财的希望</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn prev-btn" onclick="prevQuestion(7)">上一题</button>
+                    <button class="nav-btn next-btn" onclick="nextQuestion(7)">下一题</button>
+                </div>
+            </div>
+            
+            <!-- 问题8 -->
+            <div class="question-card" id="question8">
+                <div class="question-header">
+                    <div class="question-number">8</div>
+                    <div class="question-text">到退休年龄时，你还会不会想继续工作或赚钱?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q8" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 应该会，毕竟得到的位置不易，退休了什么都不是了，会有些不习惯</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 当然会想赚钱，但赚钱的方式不一定要是继续上班</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 看经济状况吧，如果到退休年龄时，家庭状况还不错，就退休</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 当然会想彻底退休，享受清闲的老年生活</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn prev-btn" onclick="prevQuestion(8)">上一题</button>
+                    <button class="nav-btn next-btn" onclick="nextQuestion(8)">下一题</button>
+                </div>
+            </div>
+            
+            <!-- 问题9 -->
+            <div class="question-card" id="question9">
+                <div class="question-header">
+                    <div class="question-number">9</div>
+                    <div class="question-text">如果可以得到一笔一千万元的巨款，你会如何领取?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q9" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 根据实际需要先领一半，剩余再做考虑</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 一次性领完一千万元</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 按每年领，并设定多少年领完</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 按每个月领，并设定多少年领完</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn prev-btn" onclick="prevQuestion(9)">上一题</button>
+                    <button class="nav-btn next-btn" onclick="nextQuestion(9)">下一题</button>
+                </div>
+            </div>
+            
+            <!-- 问题10 -->
+            <div class="question-card" id="question10">
+                <div class="question-header">
+                    <div class="question-number">10</div>
+                    <div class="question-text">你想要住的地方是?</div>
+                </div>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q10" value="4">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">A</span> 郊外的别墅</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="3">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">B</span> 市中心的豪华大楼</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="2">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">C</span> 设施、配置齐全，交通也比较便利的高档小区</div>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="1">
+                        <div class="radio"></div>
+                        <div class="label"><span class="letter">D</span> 园林田园式的住宅</div>
+                    </label>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn prev-btn" onclick="prevQuestion(10)">上一题</button>
+                    <button class="nav-btn next-btn" onclick="submitQuiz()">查看结果</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 结果页面 -->
+        <div class="result-container" id="resultContainer">
+            <div class="result-title">你的财商测评结果</div>
+            <div class="result-score" id="resultScore">0</div>
+            <div class="result-level" id="resultLevel"></div>
+            <div class="result-desc" id="resultDesc"></div>
+            
+            <button class="restart-btn" onclick="restartQuiz()">重新测试</button>
+        </div>
+    </div>
+    
+    <script>
+        // 当前显示的问题编号
+        let currentQuestion = 1;
+        const totalQuestions = 10;
+        
+        // 更新进度条
+        function updateProgressBar() {
+            const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        // 下一题
+        function nextQuestion(questionNum) {
+            // 检查是否已选择答案
+            const selectedOption = document.querySelector(`#question${questionNum} input[type="radio"]:checked`);
+            if (!selectedOption) {
+                alert('请选择一个答案后再继续');
+                return;
+            }
+            
+            // 隐藏当前问题
+            document.getElementById(`question${questionNum}`).classList.remove('active');
+            
+            // 显示下一题
+            currentQuestion = questionNum + 1;
+            document.getElementById(`question${currentQuestion}`).classList.add('active');
+            
+            // 更新进度条
+            updateProgressBar();
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 上一题
+        function prevQuestion(questionNum) {
+            // 隐藏当前问题
+            document.getElementById(`question${questionNum}`).classList.remove('active');
+            
+            // 显示上一题
+            currentQuestion = questionNum - 1;
+            document.getElementById(`question${currentQuestion}`).classList.add('active');
+            
+            // 更新进度条
+            updateProgressBar();
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 提交问卷
+        function submitQuiz() {
+            // 检查是否已选择答案
+            const selectedOption = document.querySelector(`#question10 input[type="radio"]:checked`);
+            if (!selectedOption) {
+                alert('请选择一个答案后再提交');
+                return;
+            }
+            
+            // 计算总分
+            let totalScore = 0;
+            for (let i = 1; i <= 10; i++) {
+                const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedOption) {
+                    totalScore += parseInt(selectedOption.value);
+                }
+            }
+            
+            // 显示结果
+            showResult(totalScore);
+            
+            // 发送数据到后端进行分析（模拟）
+            sendAnalyticsData(totalScore);
+        }
+        
+        // 显示结果
+        function showResult(score) {
+            // 隐藏问卷容器
+            document.getElementById('questionContainer').style.display = 'none';
+            
+            // 显示结果容器
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.style.display = 'block';
+            
+            // 设置分数
+            document.getElementById('resultScore').textContent = score;
+            
+            // 根据分数设置结果级别和描述
+            let level = '';
+            let desc = '';
+            
+            if (score >= 30 && score <= 40) {
+                level = '财商指数95%';
+                desc = '你头脑聪明，只要有时间就能学会实用的赚钱技能，一旦时机成熟就能令人刮目相看，你能得到这么高的分，将来一般都会很富有。并且你花钱的态度一向都是为了让自己开心，为了让生活品味提升，也因为这种驱动力，你会迫使自己不断地去赚钱。其实吃、穿也是能进行投资的，你完全可以凭借自己的魄力和品位去进行一些高质量的消费。';
+            } else if (score >= 25 && score <= 29) {
+                level = '财商指数65%';
+                desc = '你敢于冒险的性格有利于你快速达到赚钱的目标，但还要学会如何去控制风险，这样财富才能稳步增长。当然，你还要小心冲动消费而导致资产赤字，建议你做好每周预算，尽量让自己理性花销，以免到手的钱，转眼就没了。';
+            } else if (score >= 20 && score <= 24) {
+                level = '财商指数40%';
+                desc = '你是一个很保守的人，专注于自己所从事的工作，赚钱目标也总是客观且容易实现的。不过，你最好能在理财上再多一点闯劲和激情。若觉得理财麻烦，对股票提不起太大兴趣，又嫌定期储蓄效率太低，建议你请值得信赖的人帮你理财，这样更有利于累积财富。';
+            } else if (score >= 10 && score <= 19) {
+                level = '财商指数20%';
+                desc = '你是一个标准的乐观主义者，懂得分享与包容，虽然能理智地选择自己能力范围之内的赚钱方法和盈利目标，但还是缺乏了行动力。赚钱对于你来说，太容易停留在想与思考的阶段。你若能付出行动，那么可以试着去正式做一些投资，尝试一些新事物。';
+            }
+            
+            document.getElementById('resultLevel').textContent = level;
+            document.getElementById('resultDesc').innerHTML = `<p>${desc}</p>`;
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 重新开始测试
+        function restartQuiz() {
+            // 重置所有选择
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+                const optionElement = radio.closest('.option');
+                if (optionElement) {
+                    optionElement.classList.remove('selected');
+                }
+            });
+            
+            // 隐藏结果容器
+            document.getElementById('resultContainer').style.display = 'none';
+            
+            // 显示问卷容器
+            document.getElementById('questionContainer').style.display = 'block';
+            
+            // 重置到第一题
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            currentQuestion = 1;
+            document.getElementById('question1').classList.add('active');
+            
+            // 重置进度条
+            updateProgressBar();
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 发送分析数据（模拟）
+        function sendAnalyticsData(score) {
+            // 在实际应用中，这里会发送数据到后端进行存储和分析
+            console.log('发送分析数据:', {
+                score: score,
+                timestamp: new Date().toISOString(),
+                // 可以添加更多分析数据，如用户ID、设备信息等
+            });
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化进度条
+            updateProgressBar();
+            
+            // 为选项添加点击事件
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        radio.checked = true;
+                        
+                        // 更新选项样式
+                        this.closest('.options').querySelectorAll('.option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
